@@ -60,6 +60,13 @@ namespace Microsoft.Azure.Commands.Network
             return psAzureFirewall;
         }
 
+        public PSAzureFirewallPolicyDraft GetAzureFirewallPolicyDraft(string resourceGroupName, string name)
+        {
+            var azureFirewallPolicyDraft = this.AzureFirewallPolicyClient.GetDraft(resourceGroupName, name);
+            var psAzureFirewallPolicyDraft = NetworkResourceManagerProfile.Mapper.Map<PSAzureFirewallPolicyDraft>(azureFirewallPolicyDraft);
+            return psAzureFirewallPolicyDraft;
+        }
+
         public PSAzureFirewallPolicy ToPsAzureFirewallPolicy(FirewallPolicy firewall)
         {
             var azureFirewallPolicy = NetworkResourceManagerProfile.Mapper.Map<PSAzureFirewallPolicy>(firewall);

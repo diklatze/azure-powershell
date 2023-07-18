@@ -20,7 +20,7 @@ using MNM = Microsoft.Azure.Management.Network.Models;
 namespace Microsoft.Azure.Commands.Network
 {
     [Cmdlet(VerbsCommon.New, ResourceManager.Common.AzureRMConstants.AzureRMPrefix + "FirewallPolicy", SupportsShouldProcess = true), OutputType(typeof(PSAzureFirewallPolicy))]
-    public class NewAzureFirewallPolicyDraftCommand : AzureFirewallPolicyBaseCmdlet
+    public class DeployAzureFirewallPolicyDraftCommand : AzureFirewallPolicyBaseCmdlet
     {
 
         [Alias("PolicyName")]
@@ -47,38 +47,6 @@ namespace Microsoft.Azure.Commands.Network
 
         [Parameter(
             Mandatory = false,
-            ValueFromPipelineByPropertyName = true,
-            HelpMessage = "The operation mode for Threat Intelligence.")]
-        [ValidateSet(
-            MNM.AzureFirewallThreatIntelMode.Alert,
-            MNM.AzureFirewallThreatIntelMode.Deny,
-            MNM.AzureFirewallThreatIntelMode.Off,
-            IgnoreCase = false)]
-        public string ThreatIntelMode { get; set; }
-
-        [Parameter(
-            Mandatory = false,
-            HelpMessage = "The whitelist for Threat Intelligence")]
-        public PSAzureFirewallPolicyThreatIntelWhitelist ThreatIntelWhitelist { get; set; }
-
-        [Parameter(
-            Mandatory = false,
-            ValueFromPipelineByPropertyName = true,
-            HelpMessage = "The base policy to inherit from")]
-        public string BasePolicy { get; set; }
-
-        [Parameter(
-            Mandatory = false,
-            HelpMessage = "The DNS Setting")]
-        public PSAzureFirewallPolicyDnsSettings DnsSetting { get; set; }
-
-        [Parameter(
-            Mandatory = false,
-            HelpMessage = "The SQL related setting")]
-        public PSAzureFirewallPolicySqlSetting SqlSetting { get; set; }
-
-        [Parameter(
-            Mandatory = false,
             HelpMessage = "Do not ask for confirmation if you want to overwrite a resource")]
         public SwitchParameter Force { get; set; }
 
@@ -86,18 +54,6 @@ namespace Microsoft.Azure.Commands.Network
             Mandatory = false,
             HelpMessage = "Run cmdlet in the background")]
         public SwitchParameter AsJob { get; set; }
-
-        [Parameter(
-            Mandatory = false,
-            HelpMessage = "The Intrusion Detection Setting")]
-        [ValidateNotNull]
-        public PSAzureFirewallPolicyIntrusionDetection IntrusionDetection { get; set; }
-
-        [Parameter(
-            Mandatory = false,
-            HelpMessage = "The private IP ranges to which traffic won't be SNAT'ed"
-        )]
-        public string[] PrivateRange { get; set; }//Dikla Not sure
 
         public override void Execute()
         {
@@ -109,34 +65,20 @@ namespace Microsoft.Azure.Commands.Network
                 string.Format(Properties.Resources.OverwritingResource, PolicyName),
                 Properties.Resources.CreatingResourceMessage,
                 PolicyName,
-                () => WriteObject(this.CreateAzureFirewallPolicyDraft()),
+                () => WriteObject(this.DeployAzureFirewallPolicyDraft()),
                 () => present);
         }
 
-        private PSAzureFirewallPolicyDraft CreateAzureFirewallPolicyDraft()
+
+        private PSAzureFirewallPolicyDraft DeployAzureFirewallPolicyDraft()
         {
 
             var policy = (this.AzureFirewallPolicy == null) ? GetAzureFirewallPolicy(this.ResourceGroupName, this.PolicyName) : this.AzureFirewallPolicy;
             this.ResourceGroupName = policy.ResourceGroupName;
             this.PolicyName = policy.Name;
 
-            var firewallPolicyDraft = new PSAzureFirewallPolicyDraft()
-            {
-                RuleCollectionGroups = policy.RuleCollectionGroups,
-                ThreatIntelMode = this.ThreatIntelMode ?? policy.ThreatIntelMode,
-                ThreatIntelWhitelist = this.ThreatIntelWhitelist ?? policy.ThreatIntelWhitelist,
-                BasePolicy = BasePolicy != null ? new Microsoft.Azure.Management.Network.Models.SubResource(BasePolicy) : policy.BasePolicy,
-                DnsSettings = this.DnsSetting ?? policy.DnsSettings,
-                SqlSetting = this.SqlSetting ?? policy.SqlSetting,
-                IntrusionDetection = this.IntrusionDetection ?? policy.IntrusionDetection,
-                PrivateRange = this.PrivateRange ?? policy.PrivateRange
-            };
-
-            // Map to the sdk object
-            var azureFirewallPolicyDraftModel = NetworkResourceManagerProfile.Mapper.Map<MNM.FirewallPolicyDraft>(firewallPolicyDraft);
-
             // Execute the Create AzureFirewall call
-            this.AzureFirewallPolicyClient.CreateOrUpdateDraft(this.ResourceGroupName, this.PolicyName, azureFirewallPolicyDraftModel);
+            this.AzureFirewallPolicyClient.DeployDraft(this.ResourceGroupName, this.PolicyName);
             return this.GetAzureFirewallPolicyDraft(this.ResourceGroupName, this.PolicyName);
         }
     }

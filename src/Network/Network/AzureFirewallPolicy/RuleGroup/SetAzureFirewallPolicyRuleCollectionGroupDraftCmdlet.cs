@@ -183,7 +183,7 @@ namespace Microsoft.Azure.Commands.Network
             string serializedObject = JsonConvert.SerializeObject(rcWrapper, settings);
             var json = serializedObject.Replace("'", "\"");
 
-            var deserializedruleGroup = (MNM.FirewallPolicyRuleCollectionGroup)JsonConvert.DeserializeObject(
+            var deserializedruleGroup = (MNM.FirewallPolicyRuleCollectionGroupDraft)JsonConvert.DeserializeObject(
                                         json,
                                         typeof(MNM.FirewallPolicyRuleCollectionGroup),
                                         new JsonConverter[] { new Iso8601TimeSpanConverter(), new PolymorphicJsonCustomConverter<MNM.FirewallPolicyRuleCollection, MNM.FirewallPolicyRule>("ruleCollectionType", "ruleType"), new TransformationJsonConverter() });

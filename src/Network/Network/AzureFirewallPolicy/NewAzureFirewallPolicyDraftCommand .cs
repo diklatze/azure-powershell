@@ -23,25 +23,28 @@ namespace Microsoft.Azure.Commands.Network
     public class NewAzureFirewallPolicyDraftCommand : AzureFirewallPolicyBaseCmdlet
     {
 
+        private const string SetByNameParameterSet = "SetByNameParameterSet";
+        private const string SetByInputObjectParameterSet = "SetByInputObjectParameterSet";
+
         [Alias("PolicyName")]
         [Parameter(
             Mandatory = false,
             ValueFromPipelineByPropertyName = true,
-            HelpMessage = "The policy name.")]
+            HelpMessage = "The policy name.", ParameterSetName = SetByNameParameterSet)]
         [ValidateNotNullOrEmpty]
         public virtual string PolicyName { get; set; }
 
         [Parameter(
             Mandatory = false,
             ValueFromPipelineByPropertyName = true,
-            HelpMessage = "The resource group name.")]
+            HelpMessage = "The resource group name.", ParameterSetName = SetByNameParameterSet)]
         [ValidateNotNullOrEmpty]
         public virtual string ResourceGroupName { get; set; }
 
         [Parameter(
             Mandatory = false,
             ValueFromPipelineByPropertyName = true,
-            HelpMessage = "Azure Firewall Policy.")]
+            HelpMessage = "Azure Firewall Policy.", ParameterSetName = SetByInputObjectParameterSet)]
         [ValidateNotNullOrEmpty]
         public virtual PSAzureFirewallPolicy AzureFirewallPolicy { get; set; }
 
